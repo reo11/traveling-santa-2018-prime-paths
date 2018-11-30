@@ -13,7 +13,7 @@ DEBUG_SIZE = 100000
 print(os.listdir("../input"))
 
 cities_df = pd.read_csv('../input/cities.csv')
-sample_submission = pd.read_csv('simple_nearest.csv')
+sample_submission = pd.read_csv('submission.csv')
 
 if DEBUG:
     cities_df = cities_df[:DEBUG_SIZE]
