@@ -6,9 +6,12 @@ import time
 import pylab as pl
 import math
 import os
+import random
 from sympy import isprime
 from tqdm import tqdm
+from termcolor import colored
 
+check_length = 2
 
 def distance(x1, y1, x2, y2, prev_is_prime, is_10th):
     # Every 10th step is 10% more lengthy unless coming from a prime CityId.
@@ -40,7 +43,7 @@ def calculate_short_score(paths, cities_df_dict):
         x, y = cities_df_dict['X'][city], cities_df_dict['Y'][city]
         is_prime = cities_df_dict['IsPrime'][city]
         sum_distance += distance(prev_x, prev_y, x, y,
-                                 prev_is_prime, i == 3)
+                                 prev_is_prime, i == check_length+2)
         prev_x, prev_y = x, y
         prev_is_prime = is_prime
     return sum_distance
@@ -53,7 +56,7 @@ def swap(x, y):
 
 
 def main():
-    DEBUG = True
+    DEBUG = False
     DEBUG_SIZE = 10000
 
     cities_df = pd.read_csv('../input/cities.csv')
@@ -69,37 +72,51 @@ def main():
 
     pbar = tqdm(total=len(submission_df))
     step = 9
-    while step + 2 < len(submission_df) - 1:
-        change = True
-        short_df = submission_df['Path'][step-2:step+3].tolist()
-        pre_score = calculate_short_score(short_df, cities_df_dict)
-        short_df[2], short_df[1] = swap(short_df[2], short_df[1])
-        score = calculate_short_score(short_df, cities_df_dict)
-        if score > pre_score:
-            short_df[2], short_df[1] = swap(short_df[2], short_df[1])
-            change = False
-        pre_score = score
 
-        short_df[2], short_df[3] = swap(short_df[2], short_df[3])
-        score = calculate_short_score(short_df, cities_df_dict)
-        if score > pre_score:
-            short_df[2], short_df[3] = swap(short_df[2], short_df[3])
-            change = change or False
-        if change:
-            submission_df['Path'][step-2:step+3] = short_df
+    while (step + check_length + 1) < len(submission_df) - 1:
+        short_df = submission_df['Path'][step-check_length:step+check_length+1].tolist()
+        pre_point = submission_df['Path'][step-check_length-1].tolist()
+        next_point = submission_df['Path'][step+check_length+1].tolist()
+
+        pre_score = calculate_short_score([pre_point]+short_df+[next_point], cities_df_dict)
+        random.shuffle(short_df)
+        count = 0
+        while count < 200:
+            pre_short_df = short_df
+            ps = calculate_short_score(
+                [pre_point]+short_df+[next_point], cities_df_dict)
+            random_a = random.randrange(2*check_length+1)
+            random_b = random_a
+            while random_b == random_a:
+                random_b = random.randrange(2*check_length+1)
+            short_df[random_a], short_df[random_b] = swap(
+                short_df[random_a], short_df[random_b])
+            s = calculate_short_score(
+                [pre_point]+short_df+[next_point], cities_df_dict)
+            if ps <= s:
+                count += 1
+                short_df = pre_short_df
+        score = calculate_short_score(
+            [pre_point]+short_df+[next_point], cities_df_dict)
+        if score < pre_score:
+            print('good!')
+            submission_df['Path'][step-check_length:step +check_length+1] = short_df
+
         step += 10
         pbar.update(10)
     pbar.close()
     score = calculate_score(submission_df['Path'], cities_df_dict)
     print('After :' + str(score))
-
     # save submission.csv
     saved = False
-    if pre_full_score == score:
+    if pre_full_score <= score:
+        print(colored('error', 'red'))
+        saved = True
+    if DEBUG:
         saved = True
     number = 0
     while saved == False:
-        Filename = '{:.3f}submit{:02}.csv'.format(score, number)
+        Filename = '../output/csv/' + '{:.3f}submit{:02}.csv'.format(score, number)
         if os.path.exists(Filename) == False:
             submission_df.to_csv(Filename, index=False)
             saved = True
