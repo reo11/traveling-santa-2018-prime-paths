@@ -11,7 +11,7 @@ from sympy import isprime
 from tqdm import tqdm
 from termcolor import colored
 
-check_length = 2
+check_length = 4
 
 def distance(x1, y1, x2, y2, prev_is_prime, is_10th):
     # Every 10th step is 10% more lengthy unless coming from a prime CityId.
@@ -78,27 +78,36 @@ def main():
         pre_point = submission_df['Path'][step-check_length-1].tolist()
         next_point = submission_df['Path'][step+check_length+1].tolist()
 
-        pre_score = calculate_short_score([pre_point]+short_df+[next_point], cities_df_dict)
+        best_score = calculate_short_score([pre_point]+short_df+[next_point], cities_df_dict)
         random.shuffle(short_df)
         count = 0
-        while count < 200:
+        # print([pre_point]+short_df+[next_point])
+        while count < 1000:
             pre_short_df = short_df
-            ps = calculate_short_score(
-                [pre_point]+short_df+[next_point], cities_df_dict)
+            ps = calculate_short_score([pre_point]+pre_short_df+[next_point], cities_df_dict)
             random_a = random.randrange(2*check_length+1)
             random_b = random_a
+
             while random_b == random_a:
                 random_b = random.randrange(2*check_length+1)
-            short_df[random_a], short_df[random_b] = swap(
-                short_df[random_a], short_df[random_b])
-            s = calculate_short_score(
-                [pre_point]+short_df+[next_point], cities_df_dict)
-            if ps <= s:
+
+            short_df[random_a], short_df[random_b] = swap(short_df[random_a], short_df[random_b])
+            s = calculate_short_score([pre_point]+short_df+[next_point], cities_df_dict)
+
+            if best_score > s:
+                break
+            elif ps > s:
+                count = 0
+            else:
                 count += 1
-                short_df = pre_short_df
-        score = calculate_short_score(
-            [pre_point]+short_df+[next_point], cities_df_dict)
-        if score < pre_score:
+                short_df[random_a], short_df[random_b] = swap(
+                    short_df[random_a], short_df[random_b])
+
+        # print([pre_point]+short_df+[next_point])
+        score = calculate_short_score([pre_point]+short_df+[next_point], cities_df_dict)
+        # print('best_score :'+ str(best_score))
+        # print('next_score :'+ str(score))
+        if score < best_score:
             print('good!')
             submission_df['Path'][step-check_length:step +check_length+1] = short_df
 
