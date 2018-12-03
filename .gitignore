@@ -1,3 +1,5 @@
 *.csv
 *.png
 .vscode/settings.json
+concorde
+*.tgz*
