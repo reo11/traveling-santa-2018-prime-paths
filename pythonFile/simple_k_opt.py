@@ -10,7 +10,11 @@ from sympy import isprime
 from tqdm import tqdm
 from termcolor import colored
 
+<<<<<<< Updated upstream
 check_length = 7
+=======
+check_length = 5
+>>>>>>> Stashed changes
 
 def distance(x1, y1, x2, y2, prev_is_prime, is_10th):
     # Every 10th step is 10% more lengthy unless coming from a prime CityId.
@@ -77,11 +81,11 @@ def main():
         pre_point = submission_df['Path'][step-check_length-1].tolist()
         next_point = submission_df['Path'][step+check_length+1].tolist()
         best_score = calculate_short_score([pre_point]+short_df+[next_point], cities_df_dict)
-        for i in range(20):
+        for i in range(5):
             random.shuffle(short_df)
             count = 0
             # print([pre_point]+short_df+[next_point])
-            while count < 300:
+            while count < 200:
                 pre_short_df = short_df
                 ps = calculate_short_score([pre_point]+pre_short_df+[next_point], cities_df_dict)
                 random_a = random.randrange(2*check_length+1)

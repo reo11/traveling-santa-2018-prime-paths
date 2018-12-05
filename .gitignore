@@ -1,4 +1,5 @@
-*.csv
+input
+output
 *.png
 .vscode/settings.json
 concorde
