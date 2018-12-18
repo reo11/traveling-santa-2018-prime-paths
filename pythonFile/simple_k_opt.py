@@ -10,11 +10,7 @@ from sympy import isprime
 from tqdm import tqdm
 from termcolor import colored
 
-<<<<<<< Updated upstream
-check_length = 7
-=======
 check_length = 5
->>>>>>> Stashed changes
 
 def distance(x1, y1, x2, y2, prev_is_prime, is_10th):
     # Every 10th step is 10% more lengthy unless coming from a prime CityId.
