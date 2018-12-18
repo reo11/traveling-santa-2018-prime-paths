@@ -35,11 +35,13 @@ void outputCSV();
     countUsedPrime();
     printf("\n");
     // primeMover();
-    randomOptimizer(15);
-    distance = calcDistance();
-    printf("distance: %lf\n", distance);
-    countUsedPrime();
-    outputCSV();
+    while(1516000 < bestScore){
+        randomOptimizer(rand() % 15 + 6);
+        distance = calcDistance();
+        printf("distance: %lf\n", distance);
+        countUsedPrime();
+        outputCSV();
+    }
     printf("\n");
 }
 
@@ -230,7 +232,7 @@ void randomOptimizer(int range)
             bestPath[i + j] = randomArray[j];
         }
         //最適化
-        for(int j = 0; j < 500; j++){
+        for(int j = 0; j < 1000; j++){
             preScore = calcShortDistance(i - 1, i + range + 1);
             randA = i + rand() % range;
             randB = randA;
