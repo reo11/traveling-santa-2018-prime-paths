@@ -35,11 +35,11 @@ void outputCSV();
     countUsedPrime();
     printf("\n");
     // primeMover();
-    randomOptimizer(10);
+    randomOptimizer(15);
     distance = calcDistance();
     printf("distance: %lf\n", distance);
     countUsedPrime();
-    void outputCSV();
+    outputCSV();
     printf("\n");
 }
 
@@ -278,7 +278,7 @@ void randomOptimizer(int range)
 }
 void outputCSV(){
     FILE *fp;
-    char *fname = "better.csv";
+    char *fname = "submission.csv";
     int ret;
 
     fp = fopen(fname, "w");
@@ -286,9 +286,9 @@ void outputCSV(){
     {
         printf("%sファイルが開けません\n", fname);
     }
-    fprintf(fp, "Path");
-    for(int i=0; i<sizeof(bestPath);i++){
-        fprintf(fp, "%d", bestPath[i]);
+    fprintf(fp, "Path\n");
+    for(int i=0; i<sizeof(bestPath)/sizeof(bestPath[0]);i++){
+        fprintf(fp, "%d\n", bestPath[i]);
     }
 
     fclose(fp);
