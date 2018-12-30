@@ -21,6 +21,7 @@ void primeMover();
 void shuffle(int ary[], int size);
 void randomOptimizer(int range);
 double calcShortDistance(int start, int end);
+void randomDistOptimizer();
 void outputCSV();
 
     int main()
@@ -35,8 +36,9 @@ void outputCSV();
     countUsedPrime();
     printf("\n");
     // primeMover();
-    while(1516000 < bestScore){
-        randomOptimizer(rand() % 15 + 6);
+    while(1512800 < bestScore){
+        //randomOptimizer(rand() % 10 + 6);
+        randomDistOptimizer();
         distance = calcDistance();
         printf("distance: %lf\n", distance);
         countUsedPrime();
@@ -232,7 +234,7 @@ void randomOptimizer(int range)
             bestPath[i + j] = randomArray[j];
         }
         //最適化
-        for(int j = 0; j < 1000; j++){
+        for(int j = 0; j < 3000; j++){
             preScore = calcShortDistance(i - 1, i + range + 1);
             randA = i + rand() % range;
             randB = randA;
@@ -262,22 +264,91 @@ void randomOptimizer(int range)
                 bestPath[i + j] = initPath[j];
             }
         }
-
-        printf("\033[2K");
-        putchar('[');
-        int progressNum = 30;
-        for (progressJ = 0; progressJ < (i / 197770) * progressNum; progressJ++)
-            putchar('#');
-        for (; progressJ < progressNum; progressJ++)
-            putchar(' ');
-        putchar(']');
-        puts("");
-
-        printf("\033[2K\033[G %d step\n", i);
-        printf("\033[2F");
-        fflush(stdout);
     }
+    printf("round done");
 }
+
+void randomDistOptimizer()
+{
+    int initPath[197770];
+    int randA, randB;
+    double score, preScore, initScore;
+    int getBetter;
+    float base_x, base_y;
+    int nearNum[5] = { 0 };
+    float nearDist[5] = { 0 };
+    int number = 5;
+    float dis;
+
+    for (int i = 1; i < 197769; i++){
+        printf("%d step\n\n", i);
+        for(int j = 0; j < 197770; j++){
+            initPath[j] = bestPath[j];
+        }
+        for(int j = 0; j < number; j++){
+            nearNum[j] = 0;
+            nearDist[j] = 10000;
+        }
+        getBetter = 0;
+        initScore = calcDistance();
+        base_x = cities[bestPath[i]][1];
+        base_y = cities[bestPath[i]][2];
+
+        for (int j = 1; j < 197770; j++){
+            if(i != j){
+                dis = pow((base_x - cities[bestPath[j]][1]) * (base_x - cities[bestPath[j]][1]) + (base_y - cities[bestPath[j]][2]) * (base_y - cities[bestPath[j]][2]), 0.5);
+                for(int k=0; k< number;k++){
+                    if(dis < nearDist[k]){
+                        for(int l = 0; l < number-1-k; l++){
+                            nearNum[number-1-l] = nearNum[number-2-l];
+                            nearDist[number-1-l] = nearDist[number-2-l];
+                        }
+                        nearNum[k] = j;
+                        nearDist[k] = dis;
+                        break;
+                    }
+                }
+            }
+        }
+        // printf("%d  %d  %d\n", nearNum[0], nearNum[1], nearNum[2]);
+        // printf("%f  %f  %f\n", nearDist[0], nearDist[1], nearDist[2]);
+        for(int j = 0; j < 50; j++){
+            for(int k = 0; k < 10; k++){
+                randA = rand() % (number+1);
+                randB = randA;
+                while(randB == randA){
+                    randB = rand() % number;
+                }
+                if(randA == number){
+                    swapPath(i, nearNum[randB]);
+                }else{
+                    swapPath(nearNum[randA], nearNum[randB]);
+                }
+            }
+            score = calcDistance();
+            // printf("increase %f \n", initScore - score);
+            // printf("init score: %f\n", initScore);
+            // printf("new  score: %f\n", score);
+            if(score < initScore){
+                bestScore = calcDistance();
+                initScore = bestScore;
+                printf("good score %.5lf\n", bestScore);
+                getBetter = 1;
+                break;
+            }else{
+                for(int k = 0; k < 197770; k++){
+                    bestPath[k] = initPath[k];
+                }
+            }
+        }
+        printf("new  score: %f\n", score);
+        if(getBetter == 1){
+            printf("good\n good\n good\n");
+        }
+    }
+    printf("round done");
+}
+
 void outputCSV(){
     FILE *fp;
     char *fname = "submission.csv";
