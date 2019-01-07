@@ -37,8 +37,8 @@ void outputCSV();
     printf("\n");
     // primeMover();
     while(1512800 < bestScore){
-        //randomOptimizer(rand() % 10 + 6);
-        randomDistOptimizer();
+        randomOptimizer(rand() % 3 + 4);
+        //randomDistOptimizer();
         distance = calcDistance();
         printf("distance: %lf\n", distance);
         countUsedPrime();
@@ -275,75 +275,80 @@ void randomDistOptimizer()
     double score, preScore, initScore;
     int getBetter;
     float base_x, base_y;
-    int nearNum[5] = { 0 };
-    float nearDist[5] = { 0 };
-    int number = 5;
+    int nearNum[4] = { 0 };
+    float nearDist[4] = { 0 };
+    int number = 4;
     float dis;
+    int countImp = 0;
 
     for (int i = 1; i < 197769; i++){
-        printf("%d step\n\n", i);
-        for(int j = 0; j < 197770; j++){
-            initPath[j] = bestPath[j];
-        }
-        for(int j = 0; j < number; j++){
-            nearNum[j] = 0;
-            nearDist[j] = 10000;
-        }
-        getBetter = 0;
-        initScore = calcDistance();
-        base_x = cities[bestPath[i]][1];
-        base_y = cities[bestPath[i]][2];
+        if(cities[bestPath[i]][3] == 1){
+            printf("point %d\n\n", i);
+            for(int j = 0; j < 197770; j++){
+                initPath[j] = bestPath[j];
+            }
+            for(int j = 0; j < number; j++){
+                nearNum[j] = 0;
+                nearDist[j] = 10000;
+            }
+            getBetter = 0;
+            initScore = calcDistance();
+            base_x = cities[bestPath[i]][1];
+            base_y = cities[bestPath[i]][2];
 
-        for (int j = 1; j < 197770; j++){
-            if(i != j){
-                dis = pow((base_x - cities[bestPath[j]][1]) * (base_x - cities[bestPath[j]][1]) + (base_y - cities[bestPath[j]][2]) * (base_y - cities[bestPath[j]][2]), 0.5);
-                for(int k=0; k< number;k++){
-                    if(dis < nearDist[k]){
-                        for(int l = 0; l < number-1-k; l++){
-                            nearNum[number-1-l] = nearNum[number-2-l];
-                            nearDist[number-1-l] = nearDist[number-2-l];
+            for (int j = 1; j < 197770; j++){
+                if(i != j){
+                    dis = pow((base_x - cities[bestPath[j]][1]) * (base_x - cities[bestPath[j]][1]) + (base_y - cities[bestPath[j]][2]) * (base_y - cities[bestPath[j]][2]), 0.5);
+                    for(int k=0; k< number;k++){
+                        if(dis < nearDist[k]){
+                            for(int l = 0; l < number-1-k; l++){
+                                nearNum[number-1-l] = nearNum[number-2-l];
+                                nearDist[number-1-l] = nearDist[number-2-l];
+                            }
+                            nearNum[k] = j;
+                            nearDist[k] = dis;
+                            break;
                         }
-                        nearNum[k] = j;
-                        nearDist[k] = dis;
-                        break;
                     }
                 }
             }
-        }
-        // printf("%d  %d  %d\n", nearNum[0], nearNum[1], nearNum[2]);
-        // printf("%f  %f  %f\n", nearDist[0], nearDist[1], nearDist[2]);
-        for(int j = 0; j < 50; j++){
-            for(int k = 0; k < 10; k++){
-                randA = rand() % (number+1);
-                randB = randA;
-                while(randB == randA){
-                    randB = rand() % number;
+            // printf("%d  %d  %d\n", nearNum[0], nearNum[1], nearNum[2]);
+            // printf("%f  %f  %f\n", nearDist[0], nearDist[1], nearDist[2]);
+            for(int j = 0; j < 30; j++){
+                for(int k = 0; k < 9; k++){
+                    randA = rand() % (number+1);
+                    randB = randA;
+                    while(randB == randA){
+                        randB = rand() % number;
+                    }
+                    if(randA == number){
+                        swapPath(i, nearNum[randB]);
+                    }else{
+                        swapPath(nearNum[randA], nearNum[randB]);
+                    }
                 }
-                if(randA == number){
-                    swapPath(i, nearNum[randB]);
+                score = calcDistance();
+                // printf("increase %f \n", initScore - score);
+                // printf("init score: %f\n", initScore);
+                // printf("new  score: %f\n", score);
+                if(score < initScore){
+                    countImp++;
+                    bestScore = calcDistance();
+                    initScore = bestScore;
+                    printf("good score %.5lf\n", bestScore);
+                    getBetter = 1;
+                    break;
                 }else{
-                    swapPath(nearNum[randA], nearNum[randB]);
+                    for(int k = 0; k < 197770; k++){
+                        bestPath[k] = initPath[k];
+                    }
                 }
             }
-            score = calcDistance();
-            // printf("increase %f \n", initScore - score);
-            // printf("init score: %f\n", initScore);
-            // printf("new  score: %f\n", score);
-            if(score < initScore){
-                bestScore = calcDistance();
-                initScore = bestScore;
-                printf("good score %.5lf\n", bestScore);
-                getBetter = 1;
-                break;
-            }else{
-                for(int k = 0; k < 197770; k++){
-                    bestPath[k] = initPath[k];
-                }
+            printf("count: %d\n", countImp);
+            printf("best score %.5lf\n", bestScore);
+            if(getBetter == 1){
+                printf("good\n good\n good\n");
             }
-        }
-        printf("new  score: %f\n", score);
-        if(getBetter == 1){
-            printf("good\n good\n good\n");
         }
     }
     printf("round done");
